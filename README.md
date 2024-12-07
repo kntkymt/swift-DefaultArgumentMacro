@@ -4,7 +4,7 @@ Swift-DefaultArgumentMacro is a Swift Compiler Plugin (macro) that provides an a
 
 # How to use
 
-```
+```swift
 import DefaultArgument
 
 struct Item {}
