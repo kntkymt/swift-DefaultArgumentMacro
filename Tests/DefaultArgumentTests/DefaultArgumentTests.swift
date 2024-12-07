@@ -4,8 +4,8 @@ import SwiftSyntaxMacros
 import SwiftSyntaxMacrosTestSupport
 import XCTest
 
-#if canImport(DefaultArgumentMacro)
-import DefaultArgumentMacro
+#if canImport(DefaultArgumentMacros)
+import DefaultArgumentMacros
 
 let testMacros: [String: Macro.Type] = [
     "DefaultArgument": DefaultArgument.self
@@ -14,7 +14,7 @@ let testMacros: [String: Macro.Type] = [
 
 final class DefaultArgumentTests: XCTestCase {
     func testDefaultArgument() throws {
-        #if canImport(DefaultArgumentMacro)
+        #if canImport(DefaultArgumentMacros)
         assertMacroExpansion(
             """
             @DefaultArgument(funcName: "getItems", defaultValues: ["pageSize": 20, "pageToken": nil])
@@ -47,7 +47,7 @@ final class DefaultArgumentTests: XCTestCase {
     }
 
     func testDefaultArgumentAsyncThrows() throws {
-        #if canImport(DefaultArgumentMacro)
+        #if canImport(DefaultArgumentMacros)
         assertMacroExpansion(
             """
             @DefaultArgument(funcName: "getItems", defaultValues: ["pageSize": 20, "pageToken": nil])

@@ -3,7 +3,7 @@ import PackageDescription
 import CompilerPluginSupport
 
 let package = Package(
-    name: "DefaultArgumentMacro",
+    name: "DefaultArgument",
     platforms: [.macOS(.v10_15), .iOS(.v13), .tvOS(.v13), .watchOS(.v6), .macCatalyst(.v13)],
     products: [
         .library(
@@ -20,7 +20,7 @@ let package = Package(
     ],
     targets: [
         .macro(
-            name: "DefaultArgumentMacro",
+            name: "DefaultArgumentMacros",
             dependencies: [
                 .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
                 .product(name: "SwiftCompilerPlugin", package: "swift-syntax")
@@ -28,7 +28,7 @@ let package = Package(
         ),
         .target(
             name: "DefaultArgument",
-            dependencies: ["DefaultArgumentMacro"]
+            dependencies: ["DefaultArgumentMacros"]
         ),
         .executableTarget(
             name: "DefaultArgumentClient",
@@ -37,7 +37,7 @@ let package = Package(
         .testTarget(
             name: "DefaultArgumentTests",
             dependencies: [
-                "DefaultArgumentMacro",
+                "DefaultArgumentMacros",
                 .product(name: "SwiftSyntaxMacrosTestSupport", package: "swift-syntax"),
             ]
         ),

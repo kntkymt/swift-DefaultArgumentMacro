@@ -168,3 +168,10 @@ public struct DefaultArgument: ExtensionMacro {
         return new
     }
 }
+
+@main
+struct DefaultArgumentPlugin: CompilerPlugin {
+    let providingMacros: [Macro.Type] = [
+        DefaultArgument.self,
+    ]
+}
