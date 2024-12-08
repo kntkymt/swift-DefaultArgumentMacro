@@ -28,14 +28,8 @@ final class DefaultArgumentTests: XCTestCase {
             }
             
             extension ItemRepositoryProtocol {
-                func getItems(pageToken: String?) -> [Item] {
-                    getItems(pageSize: 20, pageToken: pageToken)
-                }
-                func getItems() -> [Item] {
-                    getItems(pageSize: 20, pageToken: nil)
-                }
-                func getItems(pageSize: Int) -> [Item] {
-                    getItems(pageSize: pageSize, pageToken: nil)
+                func getItems(pageSize: Int = 20, pageToken: String? = nil) -> [Item] {
+                    getItems(pageSize: pageSize, pageToken: pageToken)
                 }
             }
             """,
@@ -61,14 +55,8 @@ final class DefaultArgumentTests: XCTestCase {
             }
             
             extension ItemRepositoryProtocol {
-                func getItems(pageToken: String?) async throws -> [Item] {
-                    try await getItems(pageSize: 20, pageToken: pageToken)
-                }
-                func getItems() async throws -> [Item] {
-                    try await getItems(pageSize: 20, pageToken: nil)
-                }
-                func getItems(pageSize: Int) async throws -> [Item] {
-                    try await getItems(pageSize: pageSize, pageToken: nil)
+                func getItems(pageSize: Int = 20, pageToken: String? = nil) async throws -> [Item] {
+                    try await getItems(pageSize: pageSize, pageToken: pageToken)
                 }
             }
             """,

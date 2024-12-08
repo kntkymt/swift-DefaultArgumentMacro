@@ -24,20 +24,6 @@ private extension FunctionDeclSyntax {
     }
 }
 
-private extension SyntaxProtocol {
-    var extractFunctionCallIgnoreTryAwait: FunctionCallExprSyntax? {
-        if let functionCall = self.as(FunctionCallExprSyntax.self) {
-            return functionCall
-        } else if let awaitExpr = self.as(AwaitExprSyntax.self) {
-            return awaitExpr.expression.extractFunctionCallIgnoreTryAwait
-        } else if let tryExpr = self.as(TryExprSyntax.self) {
-            return tryExpr.expression.extractFunctionCallIgnoreTryAwait
-        } else {
-            return nil
-        }
-    }
-}
-
 public struct DefaultArgument: ExtensionMacro {
     enum DefaultArgumentMacroError: Error {
         case invalidArgument
@@ -88,6 +74,7 @@ public struct DefaultArgument: ExtensionMacro {
             throw DefaultArgumentMacroError.functionNotFound
         }
 
+        // add functionCallExpr
         do {
             let parameters = targetFuncDecl.signature.parameterClause.parameters
             let callParameters = parameters.map { parameter in
@@ -105,67 +92,22 @@ public struct DefaultArgument: ExtensionMacro {
             targetFuncDecl.body = CodeBlockSyntax(stringLiteral: "{\(callBase)}")
         }
 
-        var overloadeds: [FunctionDeclSyntax] = []
-        for (argName, defaultValue) in defaults.sorted(by: { $0.key < $1.key }) {
-            try overloadeds.append(
-                contentsOf: overloadeds.map { try apply(base: $0, argName: argName, defaultValue: defaultValue) }
-            )
-
-            overloadeds.append(
-                try apply(base: targetFuncDecl, argName: argName, defaultValue: defaultValue)
-            )
+        // add defaultValues to decl
+        for (argName, defaultValue) in defaults {
+            guard let index = targetFuncDecl.signature.parameterClause.parameters.firstIndex(where: { $0.firstName.text == argName }) else {
+                throw DefaultArgumentMacroError.argNameNotFound
+            }
+            targetFuncDecl.signature.parameterClause.parameters[index].defaultValue = InitializerClauseSyntax(value: defaultValue)
         }
 
         return [
             try ExtensionDeclSyntax(
                 "extension \(type)",
                 membersBuilder: {
-                    overloadeds
+                    targetFuncDecl
                 }
             )
         ]
-    }
-
-    public static func apply(base functionDecl: FunctionDeclSyntax, argName: String, defaultValue: ExprSyntax) throws -> FunctionDeclSyntax {
-        var new = functionDecl
-        do {
-            // remove arg
-            guard let index = new.signature.parameterClause.parameters.firstIndex(where: { syntax in
-                syntax.firstName.text == argName
-            }) else {
-                throw DefaultArgumentMacroError.argNameNotFound
-            }
-            new.signature.parameterClause.parameters.remove(at: index)
-
-            // remove trailing "," if exist (is there any better way...?)
-            if !new.signature.parameterClause.parameters.isEmpty, let lastIndex = new.signature.parameterClause.parameters.lastIndex(where: { $0 == new.signature.parameterClause.parameters.last }) {
-                new.signature.parameterClause.parameters[lastIndex].trailingComma = nil
-            }
-        }
-
-        do {
-            // add default value to the call
-            guard var functionCall = new.body?.statements.first?.item.extractFunctionCallIgnoreTryAwait, let index = functionCall.arguments.firstIndex(where: { $0.label?.text == argName }) else {
-                throw DefaultArgumentMacroError.argNameNotFound
-            }
-            functionCall.arguments[index].expression = defaultValue
-
-            // FIXME: dirty codes
-            var blockItem: ExprSyntaxProtocol? = functionCall
-            if let call = blockItem, functionDecl.isAsyncFunc {
-                blockItem = AwaitExprSyntax(expression: call)
-            }
-            if let call = blockItem, functionDecl.isThrowsFunc {
-                blockItem = TryExprSyntax(expression: call)
-            }
-            if let blockItem {
-                new.body?.statements = CodeBlockItemListSyntax(itemsBuilder: {
-                    blockItem
-                })
-            }
-        }
-
-        return new
     }
 }
 
