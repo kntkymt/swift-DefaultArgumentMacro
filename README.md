@@ -1,6 +1,6 @@
 # swift-DefaultArgumentMacro
 
-Swift-DefaultArgumentMacro is a Swift Compiler Plugin (macro) that provides an automated way to generate overloaded functions for protocols, enabling them to behave as if they have default arguments.
+Swift-DefaultArgumentMacro is a Swift Compiler Plugin (macro) that provides an automated way to generate overloaded function that has default arguments.
 
 # How to use
 
